@@ -69,5 +69,21 @@ class Cart(db.Model):
             "items": [item.to_dict() for item in self.items],
         }
 
+class CartItem(db.Model):
+    __tablename__="cart_items"
 
+    id = db.Column(db.Integer, primar_key=True)
+    cart_id = db.Column(db.Integer, db.ForeignKey("carts.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    
+    product = db.relationship("Product")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "product": self.id,
+            "quantity": self.quantity,
+
+        }
     
