@@ -54,5 +54,20 @@ class Product(db.Model):
 
         }
 
+class Cart(db.Model):
+    __tablename__="carts"
+
+    id = db.Column(db.Integer, primary_key=True) 
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    items = db.relationship("CartItem", backref="cart", cascade="all, delete-orphan")
+
+    def to_dict(self):
+        return{
+            "id": self.id,
+            "items": [item.to_dict() for item in self.items],
+        }
+
 
     
