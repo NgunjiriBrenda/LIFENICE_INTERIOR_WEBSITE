@@ -28,3 +28,31 @@ class User(db.Model):
             "is_admin": self.is_admin,
         }
 
+class Product(db.Model):
+    __tablename__="products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    sku = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(150), nullable=False)
+    category = db.Column(db.String(80), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    unit = db.Column(db.String(30), default="each")
+    spec = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "sku": self.sku,
+            "name": self.name,
+            "category": self.category,
+            "price": self.price,
+            "unit": self.unit,
+            "spec": self.spec,
+            "description": self.description,
+
+        }
+
+
+    
