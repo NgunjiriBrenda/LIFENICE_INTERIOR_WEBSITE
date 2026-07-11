@@ -87,3 +87,31 @@ class CartItem(db.Model):
 
         }
     
+class Order(db.Model):
+    __tablename__="orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    status = db.Column(db.String(30), default="pending")
+    shipping_name = db.Column(db.String(120))
+    shipping_address = db.Column(db.String(200))
+    shipping_city = db.Column(db.String(100))
+    shipping_zip = db.Column(db.String(20))
+    total = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    items = db.relationship("OrderItem", backref="order", cascade="all, delete-orphan")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "status": self.status,
+            "shipping_name": self.shipping_name,
+            "shipping_address": self.shipping_address,
+            "shipping_city": self.shipping_city,
+            "shipping_zip": self.shipping_zip,
+            "total":self.total,
+            "created_at": self.created_at.isormat(),
+            "items": [item.to_dict() for item in self.items],
+        }
+    
