@@ -115,3 +115,22 @@ class Order(db.Model):
             "items": [item.to_dict() for item in self.items],
         }
     
+class OrderItem(db.Model):
+    __tablename__="order_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order = db.Column(db.Integer, db.ForeignKey("orders.id", nullable=False))
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id", nullable=False))
+    quantity = db.Column(db.Integer,nullable=False)
+    price_at_purchase = db.Column(db.Float, nullable=False)
+
+    product = db.relationship("Product")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "product": self.product.to_dict(),
+            "quantity": self.quantity,
+            "price_at_purchase": self.price_at_purchase,
+
+        }
