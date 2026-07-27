@@ -30,4 +30,32 @@ def token_required(f):
                 token, current_app.config["JWT_SECRET"], algorithms=["HS256"]
             )
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token expired, please log in again"})
+            return jsonify({"error": "Token expired, please log in again"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error: Invalid token"}), 401
+
+        user = User.query.get(payload["user_id"])
+        if not user:
+            return jsonify({"error": "User no longer exists"}), 401
+        
+        return f(user, *args, **kwargs)
+    
+    return wrapper
+
+@auth_bp.route("/signup", methods=["POST"])
+def signup():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not name or not email or not password:
+        return jsonify({"error": "Name, email and password are all required" }), 400
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+    
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "An account with that email already exists"}), 409
+    
+
+    user = User(name=name, email=email)
