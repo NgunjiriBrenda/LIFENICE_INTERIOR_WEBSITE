@@ -20,5 +20,30 @@ def get_product(product_id):
         return jsonify({"error": "Product not found"}), 404
     return jsonify(product.to_dict()), 200
 
+@products_bp.route("/products", methods=["POST"])
+@token_required
+@admin_required
+def create_product(current_user):
+    data = request.get_json(silent=True) or {}
+    required_fields = ["sku", "name", "category", "price", "stock"]
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({"error": f"{field} is required"}), 400
+
+    product = Product(
+        sku=data["sku"],
+        name=data["name"],
+        category=data["category"],
+        price=data["price"],
+        unit=data.get("unit", "each"),
+        spec=data.get("spec"),
+        description=data.get("description"),
+        stock=data["stock"],
+        image_url=data.get("image_url")
+    )
+    db.session.add(product)
+    db.session.commit()
+    return jsonify(product.to_dict()), 201
+
 
     
