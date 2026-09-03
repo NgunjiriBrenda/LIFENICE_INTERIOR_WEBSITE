@@ -45,5 +45,20 @@ def create_product(current_user):
     db.session.commit()
     return jsonify(product.to_dict()), 201
 
+@products_bp.route("/products/<int:product_id>", methods=["PUT"])
+@token_required
+@admin_required
 
-    
+def update_product(current_user, product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    for field in ["sku", "name", "category", "price", "unit", "spec", "description", "stock", "image_url"]:
+        if field in data:
+            setattr(product, field, data[field])
+
+    db.session.commit()
+    return jsonify(product.to_dict()), 200
+
