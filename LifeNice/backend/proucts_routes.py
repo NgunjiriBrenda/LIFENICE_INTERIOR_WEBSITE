@@ -13,5 +13,12 @@ def list_products():
     products = query.all()
     return jsonify([p.to_dict() for p in products]), 200
 
+@products_bp.route("/products/<int:product_id>", methods=["GET"])
+def get_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+    return jsonify(product.to_dict()), 200
+
 
     
