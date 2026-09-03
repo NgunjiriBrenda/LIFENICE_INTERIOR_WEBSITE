@@ -7,7 +7,7 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__="users"
 
-    id = db.Column(db.Interger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(129), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
@@ -17,8 +17,8 @@ class User(db.Model):
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, passowrd):
-        return check_password_hash(self:password_hash, password)
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
     
     def to_dict(self):
         return {
@@ -39,6 +39,9 @@ class Product(db.Model):
     unit = db.Column(db.String(30), default="each")
     spec = db.Column(db.String(200))
     description = db.Column(db.Text)
+    stock = db.Column(db.Integer, nullable=False, default=0)
+    image_url = db.Column(db.String(255))
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -51,6 +54,8 @@ class Product(db.Model):
             "unit": self.unit,
             "spec": self.spec,
             "description": self.description,
+            "stock": self.stock,
+            "image_url": self.image_url,
 
         }
 
@@ -91,7 +96,7 @@ class Order(db.Model):
     __tablename__="orders"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     status = db.Column(db.String(30), default="pending")
     shipping_name = db.Column(db.String(120))
     shipping_address = db.Column(db.String(200))
@@ -111,7 +116,7 @@ class Order(db.Model):
             "shipping_city": self.shipping_city,
             "shipping_zip": self.shipping_zip,
             "total":self.total,
-            "created_at": self.created_at.isormat(),
+            "created_at": self.created_at.isformat(),
             "items": [item.to_dict() for item in self.items],
         }
     
