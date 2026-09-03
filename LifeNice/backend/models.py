@@ -63,7 +63,7 @@ class Cart(db.Model):
     __tablename__="carts"
 
     id = db.Column(db.Integer, primary_key=True) 
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship("CartItem", backref="cart", cascade="all, delete-orphan")
@@ -77,7 +77,7 @@ class Cart(db.Model):
 class CartItem(db.Model):
     __tablename__="cart_items"
 
-    id = db.Column(db.Integer, primar_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey("carts.id"), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
@@ -87,7 +87,7 @@ class CartItem(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "product": self.id,
+            "product": self.product.to_dict(),
             "quantity": self.quantity,
 
         }
@@ -103,6 +103,7 @@ class Order(db.Model):
     shipping_city = db.Column(db.String(100))
     shipping_zip = db.Column(db.String(20))
     total = db.Column(db.Float, nullable=False)
+    payment_reference = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship("OrderItem", backref="order", cascade="all, delete-orphan")
@@ -116,8 +117,9 @@ class Order(db.Model):
             "shipping_city": self.shipping_city,
             "shipping_zip": self.shipping_zip,
             "total":self.total,
-            "created_at": self.created_at.isformat(),
+            "created_at": self.created_at.isoformat(),
             "items": [item.to_dict() for item in self.items],
+            "payment_reference": self.payment_reference,
         }
     
 class OrderItem(db.Model):
