@@ -62,3 +62,15 @@ def update_product(current_user, product_id):
     db.session.commit()
     return jsonify(product.to_dict()), 200
 
+@products_bp.route("/products/<int:product_id>", methods=["DELETE"])
+@token_required
+@admin_required
+def delete_product(current_user, product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+    
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({"message": "Product deleted"}), 200
+
